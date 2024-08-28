@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.lukasabbe.coppergratesbubblethru.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BubbleColumnBlockMixin",
+    "MagmaBlockMixin",
+    "SoulSandMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
