@@ -22,7 +22,7 @@ public class BubbleColumnBlockMixin {
     }
     @WrapOperation(method = "update(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;)V", at= @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldAccess;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z",ordinal = 0))
     private static boolean ifGrateSkip(WorldAccess instance, BlockPos blockPos, BlockState state, int i, Operation<Boolean> original){
-        if(ModBlockTags.isACopperGrates(instance.getBlockState(blockPos))){
+        if(ModBlockTags.isACopperGrates(instance.getBlockState(blockPos)) || instance.getBlockState(blockPos).contains(Properties.WATERLOGGED)){
             return true;
         }else{
             return original.call(instance, blockPos, state, i);
@@ -30,14 +30,14 @@ public class BubbleColumnBlockMixin {
     }
     @WrapOperation(method = "update(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;)V", at= @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldAccess;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z",ordinal = 1))
     private static boolean ifGrateSkipMutable(WorldAccess instance, BlockPos blockPos, BlockState state, int i, Operation<Boolean> original, @Local BlockPos.Mutable mutable){
-        if(ModBlockTags.isACopperGrates(instance.getBlockState(mutable))){
+        if(ModBlockTags.isACopperGrates(instance.getBlockState(mutable)) || instance.getBlockState(mutable).contains(Properties.WATERLOGGED)){
             return true;
         }else{
             return original.call(instance, blockPos, state, i);
         }
     }
     @ModifyExpressionValue(method = "canPlaceAt", at= @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isOf(Lnet/minecraft/block/Block;)Z",ordinal = 2))
-    public boolean addGratas(boolean original, @Local(ordinal = 0, argsOnly = true) BlockState blockState){
+    public boolean addGrates(boolean original, @Local(ordinal = 0, argsOnly = true) BlockState blockState){
         return original || (ModBlockTags.isACopperGrates(blockState) && blockState.contains(Properties.WATERLOGGED));
     }
     @WrapOperation(method = "update(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;)V", at= @At(value = "INVOKE", target = "Lnet/minecraft/block/BubbleColumnBlock;getBubbleState(Lnet/minecraft/block/BlockState;)Lnet/minecraft/block/BlockState;"))
