@@ -28,7 +28,9 @@ public class MagmaBlockMixin extends Block {
     @Inject(method = "getStateForNeighborUpdate", at= @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldAccess;scheduleBlockTick(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;I)V"))
     public void addMoreSchedules(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos, CallbackInfoReturnable<BlockState> cir){
         final BlockPos.Mutable movePos = pos.mutableCopy().move(Direction.UP).move(Direction.UP);
+        world.scheduleBlockTick(movePos,world.getBlockState(movePos).getBlock(),20);
         BubbleColumnBlock.update(world,movePos,world.getBlockState(pos));
+        BubbleColumnBlock.update(world,movePos,world.getBlockState(movePos));
     }
     @Override
     public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
