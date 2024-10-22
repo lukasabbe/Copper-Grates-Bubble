@@ -10,7 +10,10 @@ import net.minecraft.block.MagmaBlock;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,12 +28,12 @@ public class MagmaBlockMixin extends Block {
     public boolean isOf(boolean original, @Local(ordinal = 1, argsOnly = true) BlockState neighborState){
         return original || (ModBlockTags.isACopperGrates(neighborState) && neighborState.contains(Properties.WATERLOGGED));
     }
-    @Inject(method = "getStateForNeighborUpdate", at= @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldAccess;scheduleBlockTick(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;I)V"))
-    public void addMoreSchedules(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos, CallbackInfoReturnable<BlockState> cir){
+    @Inject(method = "getStateForNeighborUpdate", at= @At(value = "INVOKE", target = "Lnet/minecraft/world/tick/ScheduledTickView;scheduleBlockTick(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;I)V"))
+    public void addMoreSchedules(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random, CallbackInfoReturnable<BlockState> cir){
         final BlockPos.Mutable movePos = pos.mutableCopy().move(Direction.UP).move(Direction.UP);
-        world.scheduleBlockTick(movePos,world.getBlockState(movePos).getBlock(),20);
-        BubbleColumnBlock.update(world,movePos,world.getBlockState(pos));
-        BubbleColumnBlock.update(world,movePos,world.getBlockState(movePos));
+        tickView.scheduleBlockTick(movePos,world.getBlockState(movePos).getBlock(),20);
+        BubbleColumnBlock.update((WorldAccess) world,movePos,world.getBlockState(pos));
+        BubbleColumnBlock.update((WorldAccess) world,movePos,world.getBlockState(movePos));
     }
     @Override
     public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
