@@ -1,7 +1,6 @@
 package me.lukasabbe.coppergratesbubblethru.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import me.lukasabbe.coppergratesbubblethru.tags.ModBlockTags;
 import net.minecraft.block.BlockState;
@@ -29,44 +28,61 @@ public abstract class BubbleColumnBlockMixin {
         return null;
     }
 
+    @Shadow
+    public static void update(WorldAccess world, BlockPos pos, BlockState bubbleSource) {
+    }
+
     @Unique
-    private static BlockState getState(WorldAccess worldAccess, BlockPos pos, BlockState bubbleSource){
-        if(ModBlockTags.isAWaterLoggedCopperGrates(bubbleSource)){
-            return getState(worldAccess,pos.down(),worldAccess.getBlockState(pos.down()));
+    private static BlockState getSource(BlockPos.Mutable pos, WorldAccess world){
+        BlockState water = world.getBlockState(pos);
+        boolean isWaterLoggedGrate = ModBlockTags.isAWaterLoggedCopperGrates(water);
+        while (isWaterLoggedGrate){
+            pos.move(Direction.DOWN);
+            water = world.getBlockState(pos);
+            isWaterLoggedGrate = ModBlockTags.isAWaterLoggedCopperGrates(water);
         }
-        else{
-            return getBubbleState(bubbleSource);
-        }
+        return getBubbleState(water);
     }
 
     @Inject(method = "update(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;)V", at=@At("HEAD"), cancellable = true)
     private static void newUpdate(WorldAccess world, BlockPos pos, BlockState water, BlockState bubbleSource, CallbackInfo ci){
-        if(isStillWater(water) || ModBlockTags.isAWaterLoggedCopperGrates(bubbleSource)){
-            BlockState blockState = getState(world,pos,bubbleSource);
-            BlockPos.Mutable mutable = pos.mutableCopy().move(Direction.UP);
-            if(ModBlockTags.isAWaterLoggedCopperGrates(blockState)){
-                mutable.move(Direction.UP);
-                world.setBlockState(mutable, blockState,2);
-            }else {
-                world.setBlockState(pos, blockState, 2);
-            }
-
-            while (true){
-                final BlockState waterState = world.getBlockState(mutable);
-                if (!(isStillWater(waterState) || ModBlockTags.isAWaterLoggedCopperGrates(waterState))) break;
-                if(!ModBlockTags.isAWaterLoggedCopperGrates(waterState)){
-                    if (!world.setBlockState(mutable, blockState, 2)) {
-                        return;
-                    }
-                    mutable.move(Direction.UP);
-                }else {
-                    mutable.move(Direction.UP);
-                    mutable.move(Direction.UP);
+        boolean isWaterLogged = ModBlockTags.isAWaterLoggedCopperGrates(water);
+        if(isStillWater(water) || isWaterLogged){
+            BlockState waterState;
+            BlockPos.Mutable waterPos;
+            if(isWaterLogged){
+                waterState = getSource(pos.mutableCopy(), world);
+                waterPos = pos.mutableCopy().move(Direction.UP);
+                while (ModBlockTags.isAWaterLoggedCopperGrates(world.getBlockState(waterPos))){
+                    waterPos.move(Direction.UP);
                 }
+                if(!isStillWater(world.getBlockState(waterPos))) ci.cancel();
+                world.setBlockState(waterPos, waterState, 2);
+                waterPos.move(Direction.UP);
 
+            }else{
+                waterState = getSource(pos.down().mutableCopy(),world);
+                waterPos = pos.mutableCopy().move(Direction.UP);
+                world.setBlockState(pos, waterState, 2);
             }
+            while(isStillWater(world.getBlockState(waterPos))) {
+                world.setBlockState(waterPos, waterState, 2);
+                waterPos.move(Direction.UP);
+            }
+            if(ModBlockTags.isAWaterLoggedCopperGrates(world.getBlockState(waterPos))){
+                update(world,waterPos.up(),world.getBlockState(waterPos));
+            }
+
         }
         ci.cancel();
+    }
+
+    @ModifyExpressionValue(
+            method = "canPlaceAt",
+            at= @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isOf(Lnet/minecraft/block/Block;)Z", ordinal = 0)
+    )
+    public boolean canPlaceAt(boolean original, @Local(ordinal = 1) BlockState blockState){
+        return original || ModBlockTags.isAWaterLoggedCopperGrates(blockState);
     }
     
 }
