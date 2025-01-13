@@ -3,7 +3,7 @@
   "id": "coppergratesbubblethru",
   "version": "${version}",
   "name": "CopperGratesBubbleThru",
-  "description": "",
+  "description": "This mod allows soul sand and magma blocks effects to go thru copper grates",
   "authors": ["Lukasabbe"],
   "contact": {},
   "license": "MIT",
