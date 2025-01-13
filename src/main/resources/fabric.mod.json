@@ -8,13 +8,13 @@
   "contact": {},
   "license": "MIT",
   "icon": "assets/coppergratesbubblethru/icon.png",
-  "environment": "client",
+  "environment": "*",
   "entrypoints": {},
   "mixins": [
     "coppergratesbubblethru.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
-    "minecraft": ">=1.21.2"
+    "minecraft": ">=1.21.4"
   }
 }
