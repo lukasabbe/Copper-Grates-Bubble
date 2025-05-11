@@ -9,6 +9,7 @@ import net.minecraft.fluid.WaterFluid;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,9 +18,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WaterFluid.class)
 public abstract class WaterFluidMixin extends FlowableFluid {
-
     @Override
-    public void onScheduledTick(ServerWorld world, BlockPos pos, BlockState blockState, FluidState fluidState) {
+    public void onScheduledTick(World world, BlockPos pos, FluidState fluidState) {
         var block = world.getBlockState(pos.down());
         boolean isWaterLoggedGrate = ModBlockTags.isAWaterLoggedCopperGrates(block);
         if(isWaterLoggedGrate){
@@ -31,6 +31,6 @@ public abstract class WaterFluidMixin extends FlowableFluid {
             }
             world.scheduleBlockTick(blockPos, world.getBlockState(blockPos).getBlock(), 0);
         }
-        super.onScheduledTick(world, pos, blockState, fluidState);
+        super.onScheduledTick(world, pos, fluidState);
     }
 }
