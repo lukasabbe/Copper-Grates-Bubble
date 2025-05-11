@@ -56,7 +56,10 @@ public abstract class BubbleColumnBlockMixin {
                 while (ModBlockTags.isAWaterLoggedCopperGrates(world.getBlockState(waterPos))){
                     waterPos.move(Direction.UP);
                 }
-                if(!isStillWater(world.getBlockState(waterPos))) ci.cancel();
+                if(!isStillWater(world.getBlockState(waterPos))) {
+                    ci.cancel();
+                    return;
+                }
                 world.setBlockState(waterPos, waterState, 2);
                 waterPos.move(Direction.UP);
 

@@ -6,7 +6,8 @@
   "mixins": [
     "BubbleColumnBlockMixin",
     "MagmaBlockMixin",
-    "SoulSandMixin"
+    "SoulSandMixin",
+    "WaterFluidMixin"
   ],
   "client": [
   ],
