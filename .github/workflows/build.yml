@@ -36,10 +36,3 @@ jobs:
         with:
           path: "./gradle.properties"
           properties: "mod_version minecraft_version archives_base_name"
-
-      - name: Upload artifacts to discord
-        uses: tsickert/discord-webhook@v6.0.0
-        with:
-          webhook-url: ${{ secrets.WEBHOOK_URL }}
-          content: "Git hub action build. **THIS MAY NOT BE A FUNCTIONAL BUILD**\nMod: ${{steps.read_property.outputs.archives_base_name}}\nMCVersion: ${{steps.read_property.outputs.minecraft_version}}\nMod version: ${{steps.read_property.outputs.mod_version}}"
-          filename: build/libs/${{ steps.read_property.outputs.archives_base_name }}-${{steps.read_property.outputs.mod_version}}.jar
