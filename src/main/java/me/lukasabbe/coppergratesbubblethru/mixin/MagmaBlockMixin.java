@@ -3,40 +3,42 @@ package me.lukasabbe.coppergratesbubblethru.mixin;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import me.lukasabbe.coppergratesbubblethru.tags.ModBlockTags;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.MagmaBlock;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.MagmaBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(MagmaBlock.class)
 public class MagmaBlockMixin extends Block {
-    public MagmaBlockMixin(Settings settings) {
+    public MagmaBlockMixin(BlockBehaviour.Properties settings) {
         super(settings);
     }
 
     @ModifyExpressionValue(
-            method = "getStateForNeighborUpdate",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isOf(Lnet/minecraft/block/Block;)Z")
+            method = "updateShape",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;is(Ljava/lang/Object;)Z")
     )
     public boolean updatedGetStateForNeighbor(boolean original, @Local(ordinal = 1, argsOnly = true) BlockState neighborState){
         return original || ModBlockTags.isAWaterLoggedCopperGrates(neighborState);
     }
 
     @Override
-    public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
-        BlockPos.Mutable checkUp = pos.mutableCopy().move(Direction.UP);
-        boolean aWaterLoggedCopperGrates = ModBlockTags.isAWaterLoggedCopperGrates(world.getBlockState(checkUp));
+    public void destroy(LevelAccessor level, BlockPos pos, @NotNull BlockState state) {
+        BlockPos.MutableBlockPos checkUp = pos.mutable().move(Direction.UP);
+        boolean aWaterLoggedCopperGrates = ModBlockTags.isAWaterLoggedCopperGrates(level.getBlockState(checkUp));
         if(aWaterLoggedCopperGrates){
             while (aWaterLoggedCopperGrates){
                 checkUp.move(Direction.UP);
-                aWaterLoggedCopperGrates = ModBlockTags.isAWaterLoggedCopperGrates(world.getBlockState(checkUp));
+                aWaterLoggedCopperGrates = ModBlockTags.isAWaterLoggedCopperGrates(level.getBlockState(checkUp));
             }
-            world.scheduleBlockTick(checkUp,world.getBlockState(checkUp).getBlock(),0);
+            level.scheduleTick(checkUp,level.getBlockState(checkUp).getBlock(),0);
         }
-        super.onBroken(world, pos, state);
+        super.destroy(level, pos, state);
     }
 }

@@ -1,36 +1,31 @@
 package me.lukasabbe.coppergratesbubblethru.mixin;
 
 import me.lukasabbe.coppergratesbubblethru.tags.ModBlockTags;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.fluid.FlowableFluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.WaterFluid;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.WaterFluid;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WaterFluid.class)
-public abstract class WaterFluidMixin extends FlowableFluid {
+public abstract class WaterFluidMixin extends FlowingFluid {
 
     @Override
-    public void onScheduledTick(ServerWorld world, BlockPos pos, BlockState blockState, FluidState fluidState) {
-        var block = world.getBlockState(pos.down());
+    public void tick(ServerLevel world, BlockPos pos, BlockState blockState, FluidState fluidState) {
+        var block = world.getBlockState(pos.below());
         boolean isWaterLoggedGrate = ModBlockTags.isAWaterLoggedCopperGrates(block);
         if(isWaterLoggedGrate){
-            BlockPos.Mutable blockPos = pos.mutableCopy();
+            BlockPos.MutableBlockPos blockPos = pos.mutable();
             while (isWaterLoggedGrate){
                 blockPos.move(Direction.DOWN);
                 block = world.getBlockState(blockPos);
                 isWaterLoggedGrate = ModBlockTags.isAWaterLoggedCopperGrates(block);
             }
-            world.scheduleBlockTick(blockPos, world.getBlockState(blockPos).getBlock(), 0);
+            world.scheduleTick(blockPos, world.getBlockState(blockPos).getBlock(), 0);
         }
-        super.onScheduledTick(world, pos, blockState, fluidState);
+        super.tick(world, pos, blockState, fluidState);
     }
 }
