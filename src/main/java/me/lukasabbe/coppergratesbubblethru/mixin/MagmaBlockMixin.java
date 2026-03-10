@@ -20,14 +20,6 @@ public class MagmaBlockMixin extends Block {
         super(settings);
     }
 
-    @ModifyExpressionValue(
-            method = "updateShape",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;is(Ljava/lang/Object;)Z")
-    )
-    public boolean updatedGetStateForNeighbor(boolean original, @Local(ordinal = 1, argsOnly = true) BlockState neighborState){
-        return original || ModBlockTags.isAWaterLoggedCopperGrates(neighborState);
-    }
-
     @Override
     public void destroy(LevelAccessor level, BlockPos pos, @NotNull BlockState state) {
         BlockPos.MutableBlockPos checkUp = pos.mutable().move(Direction.UP);

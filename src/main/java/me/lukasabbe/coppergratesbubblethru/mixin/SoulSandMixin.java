@@ -19,13 +19,6 @@ public class SoulSandMixin extends Block {
         super(settings);
     }
 
-    @ModifyExpressionValue(
-            method = "updateShape",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;is(Ljava/lang/Object;)Z")
-    )
-    public boolean updatedGetStateForNeighbor(boolean original, @Local(argsOnly = true, name = "arg7") BlockState neighborState){
-        return original || ModBlockTags.isAWaterLoggedCopperGrates(neighborState);
-    }
     @Override
     public void destroy(LevelAccessor world, BlockPos pos, BlockState state) {
         BlockPos.MutableBlockPos checkUp = pos.mutable().move(Direction.UP);
