@@ -5,12 +5,12 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "BubbleColumnBlockMixin",
+    "LiquidBlockMixin",
     "MagmaBlockMixin",
     "SoulSandMixin",
     "WaterFluidMixin"
   ],
   "client": [
-
   ],
   "injectors": {
     "defaultRequire": 1
