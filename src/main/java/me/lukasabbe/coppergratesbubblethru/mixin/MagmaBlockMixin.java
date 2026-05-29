@@ -1,8 +1,8 @@
 package me.lukasabbe.coppergratesbubblethru.mixin;
 
-import me.lukasabbe.coppergratesbubblethru.tags.ModBlockTags;
+import me.lukasabbe.coppergratesbubblethru.util.GrateBubbleScheduler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.MagmaBlock;
@@ -18,16 +18,14 @@ public class MagmaBlockMixin extends Block {
     }
 
     @Override
+    public void onPlace(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        GrateBubbleScheduler.scheduleColumnUpdateAboveGrates(level, pos);
+    }
+
+    @Override
     public void destroy(LevelAccessor level, BlockPos pos, @NotNull BlockState state) {
-        BlockPos.MutableBlockPos checkUp = pos.mutable().move(Direction.UP);
-        boolean aWaterLoggedCopperGrates = ModBlockTags.isAWaterLoggedCopperGrates(level.getBlockState(checkUp));
-        if(aWaterLoggedCopperGrates){
-            while (aWaterLoggedCopperGrates){
-                checkUp.move(Direction.UP);
-                aWaterLoggedCopperGrates = ModBlockTags.isAWaterLoggedCopperGrates(level.getBlockState(checkUp));
-            }
-            level.scheduleTick(checkUp,level.getBlockState(checkUp).getBlock(),0);
-        }
+        GrateBubbleScheduler.scheduleColumnUpdateAboveGrates(level, pos);
         super.destroy(level, pos, state);
     }
 }

@@ -26,7 +26,7 @@ public abstract class BubbleColumnBlockMixin {
     }
 
     @Shadow
-    public static void updateColumn(Block bubbleColumn, LevelAccessor level, BlockPos occupyAt, BlockState belowState) {
+    public static void updateColumn(Block bubbleColumn, LevelAccessor level, BlockPos occupyAt, BlockState occupyState, BlockState bubbleSource) {
     }
 
     @Shadow
@@ -78,11 +78,12 @@ public abstract class BubbleColumnBlockMixin {
                 waterPos.move(Direction.UP);
             }
             if(ModBlockTags.isAWaterLoggedCopperGrates(world.getBlockState(waterPos))){
-                updateColumn(bubbleColumn, world,waterPos.above(),world.getBlockState(waterPos));
+                BlockPos gratePos = waterPos.immutable();
+                updateColumn(bubbleColumn, world, gratePos, world.getBlockState(gratePos), world.getBlockState(gratePos.below()));
             }
 
+            ci.cancel();
         }
-        ci.cancel();
     }
 
     @ModifyExpressionValue(
