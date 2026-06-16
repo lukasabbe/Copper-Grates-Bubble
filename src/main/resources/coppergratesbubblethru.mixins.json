@@ -2,9 +2,10 @@
   "required": true,
   "minVersion": "0.8",
   "package": "me.lukasabbe.coppergratesbubblethru.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "mixins": [
     "BubbleColumnBlockMixin",
+    "LiquidBlockMixin",
     "MagmaBlockMixin",
     "SoulSandMixin",
     "WaterFluidMixin"
